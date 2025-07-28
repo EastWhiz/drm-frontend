@@ -95,7 +95,7 @@ const FAQs = ({ params, report }: FAQsProps) => {
       const socket = io(socketUrl, {
         reconnectionAttempts: maxReconnectAttempts,
         timeout: 10000,
-        transports: ['websocket'],
+        // Allow all transports instead of forcing websocket only
         path: socketPath
       });
 
