@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Search, Send, Circle } from "lucide-react";
+import { io, Socket } from "socket.io-client";
 
 interface insight {
   title: string;
@@ -40,7 +41,7 @@ const FAQs = ({ params, report }: FAQsProps) => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const wsRef = useRef<WebSocket | null>(null);
+  const socketRef = useRef<Socket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const maxReconnectAttempts = 5;
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
@@ -52,8 +53,12 @@ const FAQs = ({ params, report }: FAQsProps) => {
     "Is there anything to note about the doctor?"
   ];
 
-  const getWebSocketUrl = () => {
+  const getSocketUrl = () => {
     return process.env.NEXT_PUBLIC_WS_URL;
+  };
+
+  const getSocketPath = () => {
+    return process.env.NEXT_PUBLIC_SOCKET_IO_PATH || '/socket.io/';
   };
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth', force: boolean = false) => {
@@ -73,92 +78,112 @@ const FAQs = ({ params, report }: FAQsProps) => {
     }
   };
 
-  const connectWebSocket = useCallback(() => {
+  const connectSocket = useCallback(() => {
     // Clean up existing connection
-    if (wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED) {
-      wsRef.current.close();
+    if (socketRef.current) {
+      socketRef.current.disconnect();
     }
 
     try {
       setConnectionError(null);
-      console.log('Attempting to connect to WebSocket...');
+      console.log('Attempting to connect to Socket.IO...');
 
-      const wsUrl = getWebSocketUrl();
-      console.log('Connecting to:', wsUrl);
-      const ws = new WebSocket(wsUrl);
+      const socketUrl = getSocketUrl();
+      const socketPath = getSocketPath();
+      console.log('Connecting to:', socketUrl, 'with path:', socketPath);
 
+      const socket = io(socketUrl, {
+        reconnectionAttempts: maxReconnectAttempts,
+        timeout: 10000,
+        transports: ['websocket'],
+        path: socketPath
+      });
+
+      // Connection timeout
       const connectionTimeout = setTimeout(() => {
-        if (ws.readyState === WebSocket.CONNECTING) {
-          ws.close();
+        if (socket && !socket.connected) {
+          socket.disconnect();
           setConnectionError('Connection timeout. Please try again.');
         }
       }, 10000);
 
-      ws.onopen = () => {
+      // Connection established
+      socket.on('connect', () => {
         clearTimeout(connectionTimeout);
-        console.log('WebSocket connected successfully');
+        console.log('Socket.IO connected successfully');
         setIsConnected(true);
         setReconnectAttempts(0);
         setConnectionError(null);
 
         try {
-          ws.send(JSON.stringify({
-            type: 'INIT_CHAT',
-            payload: { params, report }
-          }));
+          socket.emit('INIT_CHAT', { params, report });
         } catch (sendError) {
           console.error('Error sending init message:', sendError);
         }
-      };
+      });
 
-      ws.onmessage = (event) => {
+      // Receive messages
+      socket.on('message', (data) => {
         try {
-          const data = JSON.parse(event.data);
-          handleWebSocketMessage(data);
+          handleSocketMessage(data);
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+          console.error('Error handling Socket.IO message:', error);
         }
-      };
+      });
 
-      ws.onclose = (event) => {
+      // Specific message types
+      socket.on('CHAT_INITIALIZED', (payload) => {
+        handleSocketMessage({ type: 'CHAT_INITIALIZED', payload });
+      });
+
+      socket.on('BOT_TYPING', (payload) => {
+        handleSocketMessage({ type: 'BOT_TYPING', payload });
+      });
+
+      socket.on('BOT_RESPONSE', (payload) => {
+        handleSocketMessage({ type: 'BOT_RESPONSE', payload });
+      });
+
+      socket.on('ERROR', (payload) => {
+        handleSocketMessage({ type: 'ERROR', payload });
+      });
+
+      // Disconnection
+      socket.on('disconnect', (reason) => {
         clearTimeout(connectionTimeout);
-        console.log('WebSocket disconnected:', event.code, event.reason);
+        console.log('Socket.IO disconnected:', reason);
         setIsConnected(false);
         setIsBotTyping(false);
 
-        // Only attempt to reconnect if it wasn't a manual close and we haven't exceeded max attempts
-        if (event.code !== 1000 && event.code !== 1001 && reconnectAttempts < maxReconnectAttempts) {
+        // Only attempt to reconnect if we haven't exceeded max attempts and it's not a manual disconnect
+        if (reason !== 'io client disconnect' && reconnectAttempts < maxReconnectAttempts) {
           const timeout = Math.min(Math.pow(2, reconnectAttempts) * 1000, 30000); // Max 30 seconds
           console.log(`Reconnecting in ${timeout}ms... (attempt ${reconnectAttempts + 1}/${maxReconnectAttempts})`);
 
           reconnectTimeoutRef.current = setTimeout(() => {
             setReconnectAttempts(prev => prev + 1);
-            connectWebSocket();
+            connectSocket();
           }, timeout);
         } else if (reconnectAttempts >= maxReconnectAttempts) {
           setConnectionError('Unable to connect to chat service. Please refresh the page.');
         }
-      };
+      });
 
-      ws.onerror = (error) => {
+      // Connection error
+      socket.on('connect_error', (error) => {
         clearTimeout(connectionTimeout);
-        console.error('WebSocket error occurred:', error);
+        console.error('Socket.IO connection error:', error);
+        setConnectionError('Failed to connect to chat service. Please check if the server is running.');
+      });
 
-        if (wsRef.current?.readyState === WebSocket.CONNECTING) {
-          setConnectionError('Failed to connect to chat service. Please check if the server is running.');
-        } else {
-          setConnectionError('Connection error occurred. Trying to reconnect...');
-        }
-      };
-
-      wsRef.current = ws;
+      socketRef.current = socket;
     } catch (error) {
-      console.error('Failed to create WebSocket connection:', error);
+      console.error('Failed to create Socket.IO connection:', error);
       setConnectionError('Failed to establish connection. Please check if the server is running.');
     }
   }, [params, report, reconnectAttempts]);
 
-  const handleWebSocketMessage = (data: any) => {
+  const handleSocketMessage = (data: any) => {
     const { type, payload } = data;
 
     switch (type) {
@@ -195,7 +220,7 @@ const FAQs = ({ params, report }: FAQsProps) => {
   useEffect(() => {
     // Delay the initial connection slightly to ensure component is fully mounted
     const connectionDelay = setTimeout(() => {
-      connectWebSocket();
+      connectSocket();
     }, 100);
 
     return () => {
@@ -203,9 +228,9 @@ const FAQs = ({ params, report }: FAQsProps) => {
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
-      if (wsRef.current) {
-        console.log('Closing WebSocket connection...');
-        wsRef.current.close(1000, 'Component unmounting');
+      if (socketRef.current) {
+        console.log('Closing Socket.IO connection...');
+        socketRef.current.disconnect();
       }
     };
   }, []);
@@ -234,21 +259,18 @@ const FAQs = ({ params, report }: FAQsProps) => {
 
     setMessages(prev => [...prev, newUserMessage]);
 
-    // Send message through WebSocket
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'CHAT_MESSAGE',
-        payload: {
-          message: messageText,
-          conversationHistory: messages.map(msg => ({
-            role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content
-          }))
-        }
-      }));
+    // Send message through Socket.IO
+    if (socketRef.current && socketRef.current.connected) {
+      socketRef.current.emit('CHAT_MESSAGE', {
+        message: messageText,
+        conversationHistory: messages.map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        }))
+      });
     } else {
       setConnectionError('Connection lost. Trying to reconnect...');
-      connectWebSocket();
+      connectSocket();
     }
   };
 
@@ -267,7 +289,7 @@ const FAQs = ({ params, report }: FAQsProps) => {
   const retryConnection = () => {
     setConnectionError(null);
     setReconnectAttempts(0);
-    connectWebSocket();
+    connectSocket();
   };
 
   // Function to convert markdown-style formatting to HTML
