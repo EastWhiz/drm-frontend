@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trust Your Doctor",
+  title: "Doctor Report | Doctor Report Generator",
   description: "Generated Report of any Doctor.",
 };
 
