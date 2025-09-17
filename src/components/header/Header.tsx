@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Search, Menu, X } from "lucide-react";
 import Image from "next/image";
@@ -9,61 +9,32 @@ import WishlistCounter from "../wishlist/WishlistCounter";
 import { useWishlist } from "@/context/WishlistContext";
 import "./header.css";
 
+const NAV_LINKS = [
+  { href: "/about", label: "About" },
+  { href: "/how-it-works", label: "How It Works" },
+];
+
 const Header = () => {
   const { wishlistCount, wishlistItems, removeFromWishlist } = useWishlist();
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const searchBoxRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
 
-  useEffect(() => {
+  // Scroll effect for header styling
+  React.useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setMenuOpen(false);
-        setShowSearch(false);
-      }
-    };
     window.addEventListener("scroll", handleScroll);
-    window.addEventListener("keydown", handleEsc);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("keydown", handleEsc);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    if (showSearch) {
-      searchInputRef.current?.focus();
-    }
-  }, [showSearch]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        showSearch &&
-        searchBoxRef.current &&
-        !searchBoxRef.current.contains(event.target as Node)
-      ) {
-        setShowSearch(false);
-      }
+  // ESC closes menu
+  React.useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showSearch]);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/?query=${encodeURIComponent(searchQuery.trim())}`);
-      setShowSearch(false);
-      setSearchQuery("");
-    }
-  };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -72,40 +43,35 @@ const Header = () => {
       <div className="container mx-auto px-6 md:px-12 relative">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold" onClick={closeMenu}>
-            Logo
+          <Link href="/" className="flex items-center" onClick={closeMenu}>
+            <img
+              src="http://surgery-abroad.com/wp-content/uploads/2023/02/surgery-abroad-responsive.png"
+              alt="Surgery Abroad logo"
+              style={{ height: '18px', width: 'auto' }}
+            />
           </Link>
 
           {/* Desktop Navigation */}
           <div className="flex items-center space-x-6">
             <nav className="hidden md:flex space-x-6 items-center">
-              <Link href="/about" className="nav-link">About</Link>
-              <Link href="/how-it-works" className="nav-link">How It Works</Link>
+              {NAV_LINKS.map(link => (
+                <Link key={link.href} href={link.href} className="nav-link">
+                  {link.label}
+                </Link>
+              ))}
             </nav>
 
-            {/* Icons (Desktop) */}
+            {/* Desktop Icons */}
             <div className="hidden md:flex items-center space-x-4">
-              {/* Search Icon */}
               <button className="icon-button" onClick={() => router.push('/?e_ser=t')}>
                 <Search size={20} />
               </button>
-
-              {/* Wishlist */}
               <WishlistCounter
                 count={wishlistCount}
                 wishlistItems={wishlistItems}
                 onRemove={removeFromWishlist}
                 onGenerateReport={() => { }}
                 onGenerateAllReports={() => { }}
-              />
-
-              {/* Always-visible Flag */}
-              <Image
-                src="/flags/us.svg"
-                alt="English"
-                width={34}
-                height={36}
-                className="rounded "
               />
             </div>
 
@@ -140,14 +106,11 @@ const Header = () => {
             <X size={28} />
           </button>
           <nav className="space-y-4 p-4 bg-white shadow-lg rounded-b-lg">
-            <Link href="/about" onClick={closeMenu} className="nav-link block">
-              About
-            </Link>
-            <Link href="/how-it-works" onClick={closeMenu} className="nav-link block">
-              How It Works
-            </Link>
-
-            {/* Mobile Search */}
+            {NAV_LINKS.map(link => (
+              <Link key={link.href} href={link.href} onClick={closeMenu} className="nav-link block">
+                {link.label}
+              </Link>
+            ))}
             <button
               className="icon-button w-full flex items-center gap-2 justify-center border rounded py-2 mt-2"
               onClick={() => { closeMenu(); router.push('/doctorsearch?e_ser=t'); }}
@@ -155,8 +118,6 @@ const Header = () => {
               <Search size={20} />
               <span>Search Doctors</span>
             </button>
-
-            {/* Wishlist and Flag */}
             <div className="pt-4 flex items-center space-x-4">
               <WishlistCounter
                 count={wishlistCount}
@@ -170,7 +131,7 @@ const Header = () => {
                 alt="English"
                 width={28}
                 height={28}
-                className=" hover:scale-105 transition-transform duration-200"
+                className="hover:scale-105 transition-transform duration-200"
               />
             </div>
           </nav>
