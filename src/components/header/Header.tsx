@@ -12,6 +12,7 @@ import "./header.css";
 const NAV_LINKS = [
   { href: "/about", label: "About" },
   { href: "/how-it-works", label: "How It Works" },
+  { href: "/eu", label: "EU Funding" },
 ];
 
 const Header = () => {
@@ -125,13 +126,6 @@ const Header = () => {
                 onRemove={removeFromWishlist}
                 onGenerateReport={() => { }}
                 onGenerateAllReports={() => { }}
-              />
-              <Image
-                src="/flags/us.svg"
-                alt="English"
-                width={28}
-                height={28}
-                className="hover:scale-105 transition-transform duration-200"
               />
             </div>
           </nav>
