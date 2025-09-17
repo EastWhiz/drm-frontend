@@ -12,7 +12,13 @@ import "./header.css";
 const NAV_LINKS = [
   { href: "/about", label: "About" },
   { href: "/how-it-works", label: "How It Works" },
-  { href: "/eu", label: "EU Funding" },
+  {
+  href: "https://surgery-abroad.com",
+  target: "_blank",
+  rel: "noopener noreferrer",
+  label: "For Service Providers"
+  },
+  { href: "/eu", label: "EU Funding" }
 ];
 
 const Header = () => {
