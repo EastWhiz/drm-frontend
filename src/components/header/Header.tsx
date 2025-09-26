@@ -1,111 +1,123 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Search, Menu, X } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import WishlistCounter from "../wishlist/WishlistCounter";
 import { useWishlist } from "@/context/WishlistContext";
 import "./header.css";
+
+type NavLink = {
+  href: string;
+  label: string;
+  target?: "_blank" | "_self";
+  rel?: string;
+};
+
+const NAV_LINKS: NavLink[] = [
+  { href: "/about", label: "About" },
+  { href: "/how-it-works", label: "How It Works" },
+  { href: "/faq", label: "FAQ" },
+  {
+    href: "https://surgery-abroad.com",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    label: "For Service Providers",
+  },
+  { href: "/eu", label: "EU Funding" },
+];
 
 const Header = () => {
   const { wishlistCount, wishlistItems, removeFromWishlist } = useWishlist();
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const searchBoxRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
-  useEffect(() => {
+  // scroll effect
+  React.useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setMenuOpen(false);
-        setShowSearch(false);
-      }
-    };
     window.addEventListener("scroll", handleScroll);
-    window.addEventListener("keydown", handleEsc);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("keydown", handleEsc);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    if (showSearch) {
-      searchInputRef.current?.focus();
-    }
-  }, [showSearch]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        showSearch &&
-        searchBoxRef.current &&
-        !searchBoxRef.current.contains(event.target as Node)
-      ) {
-        setShowSearch(false);
-      }
+  // ESC closes menu
+  React.useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showSearch]);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/?query=${encodeURIComponent(searchQuery.trim())}`);
-      setShowSearch(false);
-      setSearchQuery("");
-    }
-  };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
 
   const closeMenu = () => setMenuOpen(false);
+
+  // Active helpers
+  const isRouteActive = (href: string) =>
+    !href.startsWith("http") && (pathname === href || pathname.startsWith(`${href}/`));
+
+  // Treat search icon as active on home or doctorsearch pages
+  const isSearchActive = pathname === "/" || pathname.startsWith("/doctorsearch");
 
   return (
     <header className={`header ${isScrolled ? "scrolled" : menuOpen ? "menu-open" : ""}`}>
       <div className="container mx-auto px-6 md:px-12 relative">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold" onClick={closeMenu}>
-            Logo
+          <Link href="/" className="flex items-center logo" onClick={closeMenu} aria-label="Home">
+            <img
+              src="http://surgery-abroad.com/wp-content/uploads/2023/02/surgery-abroad-responsive.png"
+              alt="Surgery Abroad logo"
+              style={{ height: "18px", width: "auto" }}
+            />
           </Link>
 
           {/* Desktop Navigation */}
           <div className="flex items-center space-x-6">
             <nav className="hidden md:flex space-x-6 items-center">
-              <Link href="/about" className="nav-link">About</Link>
-              <Link href="/how-it-works" className="nav-link">How It Works</Link>
+              {NAV_LINKS.map((link) =>
+                link.href.startsWith("http") ? (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target={link.target}
+                    rel={link.rel}
+                    className="nav-link"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="nav-link"
+                    aria-current={isRouteActive(link.href) ? "page" : undefined}
+                  >
+                    {link.label}
+                  </Link>
+                )
+              )}
             </nav>
 
-            {/* Icons (Desktop) */}
+            {/* Desktop Icons */}
             <div className="hidden md:flex items-center space-x-4">
-              {/* Search Icon */}
-              <button className="icon-button" onClick={() => router.push('/?e_ser=t')}>
+              <button
+                className="icon-button"
+                aria-current={isSearchActive ? "page" : undefined}
+                onClick={() => router.push("/?e_ser=t")}
+                aria-label="Search doctors"
+                type="button"
+              >
                 <Search size={20} />
               </button>
 
-              {/* Wishlist */}
               <WishlistCounter
                 count={wishlistCount}
                 wishlistItems={wishlistItems}
                 onRemove={removeFromWishlist}
-                onGenerateReport={() => { }}
-                onGenerateAllReports={() => { }}
-              />
-
-              {/* Always-visible Flag */}
-              <Image
-                src="/flags/us.svg"
-                alt="English"
-                width={34}
-                height={36}
-                className="rounded "
+                onGenerateReport={() => {}}
+                onGenerateAllReports={() => {}}
               />
             </div>
 
@@ -113,6 +125,8 @@ const Header = () => {
             <button
               className="md:hidden text-2xl icon-button"
               onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
+              type="button"
             >
               {menuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -121,10 +135,7 @@ const Header = () => {
 
         {/* Mobile Overlay */}
         {menuOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-25 z-10"
-            onClick={closeMenu}
-          />
+          <div className="fixed inset-0 bg-black bg-opacity-25 z-10" onClick={closeMenu} />
         )}
 
         {/* Mobile Navigation */}
@@ -136,41 +147,50 @@ const Header = () => {
             className="absolute top-4 right-4 text-2xl icon-button"
             onClick={closeMenu}
             aria-label="Close menu"
+            type="button"
           >
             <X size={28} />
           </button>
-          <nav className="space-y-4 p-4 bg-white shadow-lg rounded-b-lg">
-            <Link href="/about" onClick={closeMenu} className="nav-link block">
-              About
-            </Link>
-            <Link href="/how-it-works" onClick={closeMenu} className="nav-link block">
-              How It Works
-            </Link>
 
-            {/* Mobile Search */}
+          <nav className="space-y-4 p-4 bg-white shadow-lg rounded-b-lg">
+            {NAV_LINKS.map((link) =>
+              link.href.startsWith("http") ? (
+                <a key={link.href} href={link.href} target={link.target} rel={link.rel} className="nav-link block">
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={closeMenu}
+                  className="nav-link block"
+                  aria-current={isRouteActive(link.href) ? "page" : undefined}
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
+
             <button
               className="icon-button w-full flex items-center gap-2 justify-center border rounded py-2 mt-2"
-              onClick={() => { closeMenu(); router.push('/doctorsearch?e_ser=t'); }}
+              onClick={() => {
+                closeMenu();
+                router.push("/doctorsearch?e_ser=t");
+              }}
+              aria-current={isSearchActive ? "page" : undefined}
+              type="button"
             >
               <Search size={20} />
               <span>Search Doctors</span>
             </button>
 
-            {/* Wishlist and Flag */}
             <div className="pt-4 flex items-center space-x-4">
               <WishlistCounter
                 count={wishlistCount}
                 wishlistItems={wishlistItems}
                 onRemove={removeFromWishlist}
-                onGenerateReport={() => { }}
-                onGenerateAllReports={() => { }}
-              />
-              <Image
-                src="/flags/us.svg"
-                alt="English"
-                width={28}
-                height={28}
-                className=" hover:scale-105 transition-transform duration-200"
+                onGenerateReport={() => {}}
+                onGenerateAllReports={() => {}}
               />
             </div>
           </nav>

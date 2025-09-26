@@ -7,7 +7,7 @@
   z-index: 50;
   padding: 5px 0;
   background-color: transparent;
-  color: #1f2937;
+  color: #1f2937; /* slate-900 */
   transition: all 0.3s ease;
 }
 
@@ -20,40 +20,61 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* Links */
+/* Base links */
 .nav-link {
-    font-weight: 600;
-  transition: color 0.3s ease;
-  color: inherit;
+  font-weight: 600;
+  transition: color 0.2s ease;
+  color: inherit; /* inherit header color */
+  text-decoration: none;
 }
+
+/* When header changes theme, links still inherit color; we keep this for specificity harmony */
 .header.scrolled .nav-link,
 .header.menu-open .nav-link {
   color: #1f2937;
+}
+
+/* Hover + Active (match specificity so they win in scrolled/menu-open states) */
+.nav-link:hover,
+.nav-link[aria-current="page"],
+.header.scrolled .nav-link:hover,
+.header.scrolled .nav-link[aria-current="page"],
+.header.menu-open .nav-link:hover,
+.header.menu-open .nav-link[aria-current="page"] {
+  color: #7fcab1; /* brand accent */
 }
 
 /* Logo */
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #1f2937;
-  transition: color 0.3s ease;
-}
-.header.scrolled .logo,
-.header.menu-open .logo {
-  color: #2563eb;
-}
-
-/* Icon buttons */
-.icon-button {
   color: inherit;
   transition: color 0.3s ease;
 }
+
+/* Icon buttons (Search, menu, etc.) */
+.icon-button {
+  color: inherit;              /* follow header color */
+  transition: color 0.2s ease; /* smooth hover */
+}
+
+/* Keep icon base color in scrolled/menu-open */
 .header.scrolled .icon-button,
 .header.menu-open .icon-button {
   color: #1f2937;
 }
 
-/* Language button */
+/* Icon hover + active (same color as links) */
+.icon-button:hover,
+.icon-button[aria-current="page"],
+.header.scrolled .icon-button:hover,
+.header.scrolled .icon-button[aria-current="page"],
+.header.menu-open .icon-button:hover,
+.header.menu-open .icon-button[aria-current="page"] {
+  color: #7fcab1;
+}
+
+/* Language button (if used) */
 .lang-button {
   display: flex;
   align-items: center;
@@ -75,5 +96,5 @@
   transition: max-height 0.3s ease;
 }
 .mobile-nav.open {
-  max-height: 500px;
+  max-height: 500px; /* adjust as needed */
 }
