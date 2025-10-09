@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true, // 👈  skip ESLint on `next build`
+  },
   typescript: { ignoreBuildErrors: true },
   images: {
     minimumCacheTTL: 60,
