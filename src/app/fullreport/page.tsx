@@ -13,6 +13,7 @@ import PrintableReport from "./_components/printable-report";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import Loader from "@/components/ui/loader/loader";
+import Footer1 from "@/components/footer/Footer";
 
 const FullReport = () => {
   const [showExitPopup, setShowExitPopup] = useState(false);
@@ -405,6 +406,7 @@ const FullReport = () => {
             onDownload={handleDownload}
             isGeneratingPDF={isGeneratingPDF}
           />
+          <Footer1 />
         </div>
       </div>
     </main>

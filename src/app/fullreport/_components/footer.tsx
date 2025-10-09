@@ -137,35 +137,6 @@ const Footer = ({ onDownload, isGeneratingPDF }: FooterProps) => {
                     )}
                 </div>
             </div>
-
-            {/* Footer Bottom Info Section */}
-            <div className="flex flex-col md:flex-row justify-between px-6 gap-10 max-w-[1440px] mt-20 mx-auto">
-                <div className="text-white max-w-lg">
-                    <h3 className="text-white pr-6 font-semibold text-2xl">Header</h3>
-                    <p className="mt-2">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare
-                        cursus sed nunc eget dictum Sed ornare cursus sed nunc eget dictumd
-                        nunc eget dictum Sed ornare cursus sed nunc eget dictum
-                    </p>
-                </div>
-                <div className="text-white">
-                    <h3 className="text-white text-center font-semibold text-2xl">
-                        Header Text
-                    </h3>
-                    <div className="text-center text-lg mt-2 space-y-1">
-                        <p>Button</p>
-                        <p>Button</p>
-                        <p>Button</p>
-                        <p>Button</p>
-                        <p>Button</p>
-                    </div>
-                </div>
-            </div>
-            {/* Footer Logo */}
-            <div className=" px-10 py-2 text-white">
-                <p className=" border-t pb-3 border-gray-500 mt-10"></p>
-                <span className="text-2xl font-bold">Logo</span>
-            </div>
         </footer>
     );
 };

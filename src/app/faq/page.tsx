@@ -3,32 +3,59 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import Footer from "@/components/footer/Footer";
+import CTA from "@/components/footer/CTA";
 
 const FAQS = [
 	{
 		question: "What is the AI tool for medical services abroad?",
 		answer:
-			"It is an AI-powered platform that helps patients find, compare, and access comprehensive reports on doctors abroad. This provides transparency and much-needed confidence for patients when making important healthcare decisions.",
+			"Our platform uses artificial intelligence to help patients find, compare, and access comprehensive reports on doctors abroad. This ensures transparency and confidence in your healthcare decisions.",
 	},
 	{
 		question: "How do I generate a doctor report?",
 		answer:
-			"Simply search for a doctor and our system will analyze multiple data sources to generate a comprehensive report with ratings, reviews, and other relevant information. Enter your email to receive the report instantly.",
+			"Search for a doctor using our platform. Our system analyzes multiple data sources and generates a detailed report with ratings, reviews, and other relevant information. Enter your email to receive the report instantly.",
 	},
 	{
 		question: "Is the service free for patients?",
 		answer:
-			"Yes, our platform is free for patients seeking information about medical services and providers abroad.",
+			"Yes, our platform is completely free for patients seeking information about medical services and providers abroad.",
 	},
 	{
 		question: "How is my data protected?",
 		answer:
-			"We take privacy seriously and do not ask for any sensitive personal data. Your email is collected solely to deliver your report and is handled securely in accordance with GDPR and all applicable regulations.",
+			"We take privacy seriously. Your email is collected only to deliver your report and is handled securely in accordance with GDPR and other applicable regulations. We do not ask for sensitive personal data.",
 	},
 	{
 		question: "Can clinics or doctors update their information?",
 		answer:
-			"Yes, verified clinics and doctors can request updates or corrections to their profiles by contacting our support team.",
+			"Verified clinics and doctors can request updates or corrections to their profiles by contacting our support team.",
+	},
+	{
+		question: "How are doctors rated?",
+		answer:
+			"Doctors are rated according to this formula: 33% of the score is based on the share of positive reviews (vs. total reviews); 67% on the doctor's average rating across top platforms.",
+	},
+	{
+		question: "What countries are covered?",
+		answer:
+			"Our platform currently covers clinics and doctors in the U.S., Canada & European countries. We are expanding to include more regions soon.",
+	},
+	{
+		question: "How often is the data updated?",
+		answer:
+			"We regularly update our database to ensure the information is accurate and up-to-date.",
+	},
+	{
+		question: "Can I leave a review for a doctor?",
+		answer:
+			"No, our platform only aggregates reviews from other publiclicly available sources and does not collect reviews on its own.",
+	},
+	{
+		question: "How do I contact support?",
+		answer:
+			"You can contact our support team via email at hello@surgery-abroad.com.",
 	},
 ];
 
@@ -42,9 +69,9 @@ export default function FAQPage() {
 	return (
 		<main className="min-h-screen bg-[#233665]/5">
 			{/* Hero Section */}
-			<section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-white">
-				<div className="relative z-10 text-center px-4 md:px-8">
-					<h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6">
+			 <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-white">
+      <div className="relative z-10 text-center px-4 md:px-8">
+        <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 break-words max-w-full">
 						Frequently Asked Questions
 					</h1>
 					<p className="text-xl md:text-2xl text-slate-600 max-w-2xl mx-auto">
@@ -54,7 +81,7 @@ export default function FAQPage() {
 			</section>
 
 			{/* FAQ Section */}
-			<section className="py-20 px-4 md:px-8 bg-white">
+			<section className="pt-4 pb-20 px-4 md:px-8 bg-white">
 				<div className="max-w-3xl mx-auto">
 					<div className="space-y-6">
 						{FAQS.map((faq, idx) => (
@@ -90,29 +117,8 @@ export default function FAQPage() {
 					</div>
 				</div>
 			</section>
-			{/* CTA Section */}
-			<section className="py-20 bg-slate-900">
-				<div className="max-w-4xl mx-auto text-center px-4 md:px-8">
-					<h2 className="text-4xl font-bold text-white mb-6">
-						Ready to Find Your Doctor?
-					</h2>
-					<p className="text-xl text-white/80 mb-8">
-						Get a comprehensive report on any doctor - start your search now!
-					</p>
-
-					<Link href="/" className="inline-block">
-						<button
-							type="button"
-							className="bg-white text-slate-900 px-8 py-4 rounded-xl text-lg font-semibold
-                   hover:bg-[#233665] hover:text-white transition-colors
-                   flex items-center gap-2 mx-auto"
-						>
-							Search Now
-							<ArrowRight size={24} />
-						</button>
-					</Link>
-				</div>
-			</section>
+			<CTA />
+       		<Footer />
 		</main>
 	);
 }

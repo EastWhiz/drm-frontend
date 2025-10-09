@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, BarChart3, ClipboardList, CheckCircle2, LineChart, Users, FileText, ArrowRight } from 'lucide-react';
-import Link from "next/link";
+import Footer from "@/components/footer/Footer";
+import CTA from "@/components/footer/CTA";
 
 const steps = [
   {
@@ -106,22 +107,6 @@ const ProcessVisualization = () => (
   </section>
 );
 
-const CTASection = () => (
-  <section className="py-20 bg-slate-900">
-    <div className="max-w-4xl mx-auto text-center px-4 md:px-8">
-      <h2 className="text-4xl font-bold text-white mb-6">Ready to Find Your Doctor?</h2>
-      <p className="text-xl text-slate-300 mb-8">
-        Get a comprehensive report on any doctor - start your search now!
-      </p>
-      <Link href="/" className="inline-block">
-      <button className="bg-white text-slate-900 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#233665] hover:text-white transition-colors flex items-center gap-2 mx-auto">
-        Search Now
-        <ArrowRight size={24} />
-      </button></Link>
-    </div>
-  </section>
-);
-
 const HowItWorksPage = () => (
   <main className="min-h-screen bg-[#EDF3FF]">
     {/* Hero Section */}
@@ -138,7 +123,8 @@ const HowItWorksPage = () => (
     </section>
 
     <StepsSection />
-    <CTASection />
+    <CTA />
+    <Footer />
   </main>
 );
 

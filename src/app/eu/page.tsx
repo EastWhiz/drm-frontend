@@ -1,3 +1,6 @@
+import Footer from "@/components/footer/Footer";
+import CTA from "@/components/footer/CTA";
+
 export default function EUFundingPage() {
   return (
     <main className="min-h-screen bg-[#233665]/5">
@@ -36,14 +39,14 @@ export default function EUFundingPage() {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="rounded-2xl overflow-hidden shadow-lg">
               <img
-                src="https://surgery-abroad.com/wp-content/uploads/2024/10/Screenshot-2024-10-31-at-09.21.00-724x1024.png"
+                src="http://surgery-abroad.com/wp-content/uploads/2025/10/Screenshot-2025-10-03-at-15.33.27-min.png"
                 alt="EU project screenshot 1"
                 className="w-full h-auto object-cover"
               />
             </div>
             <div className="rounded-2xl overflow-hidden shadow-lg">
               <img
-                src="https://surgery-abroad.com/wp-content/uploads/2024/10/Screenshot-2024-10-31-at-09.21.15-724x1024.png"
+                src="http://surgery-abroad.com/wp-content/uploads/2025/10/Screenshot-2025-10-03-at-15.33.09-min.png"
                 alt="EU project screenshot 2"
                 className="w-full h-auto object-cover"
               />
@@ -51,6 +54,9 @@ export default function EUFundingPage() {
           </div>
         </div>
       </section>
+
+      <CTA />
+      <Footer />
     </main>
   );
 }
