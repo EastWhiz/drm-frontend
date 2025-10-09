@@ -55,7 +55,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
 
       {/* Specialist Info */}
       <div className="mb-4 pr-2">
-        <p className="font-semibold text-xl text-primary break-words leading-tight">
+        <p className="font-semibold text-l text-primary break-words leading-tight">
           {Array.isArray(doctor.specialties)
             ? doctor.specialties.join(", ")
             : doctor.specialty || ""}

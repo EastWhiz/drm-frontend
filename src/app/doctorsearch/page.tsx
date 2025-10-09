@@ -235,12 +235,9 @@ const DoctorSearch = () => {
               {/* Text Content - No layout shifts */}
               <div className="flex-1 transition-all duration-500 ease-in-out">
                 <div className="text-left mb-1">
-                  <h1 className="text-2xl font-semibold mb-2 lg:text-5xl lg:mb-4">
-                    Hello <span className="inline-block animate-wave">👋</span>
+                  <h1>
+                    Find Your Doctor <span className="inline-block animate-wave">👋</span>
                   </h1>
-                  <h2 className="text-3xl font-bold lg:text-6xl">
-                    Find your doctor
-                  </h2>
                 </div>
 
                 {/* Search Input - Consistent width */}
@@ -280,6 +277,7 @@ const DoctorSearch = () => {
         </div>
 
         {/* Location Filter */}
+        {/*
         {filteredDoctors.length > 0 && (
           <LocationFilter
             show={showLocationFilter}
@@ -312,6 +310,7 @@ const DoctorSearch = () => {
             getFilterDisplayText={getFilterDisplayText}
           />
         )}
+        */}
 
         {/* Doctor Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-[1440px] mx-auto">

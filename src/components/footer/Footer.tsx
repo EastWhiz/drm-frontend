@@ -10,7 +10,7 @@ const columns = [
   {
     heading: "Statistics",
     links: [
-      { type: "rating", label: "⭐⭐⭐⭐⭐ 4.9/5 User Rating" },
+      { type: "rating", label: "⭐⭐⭐⭐⭐ 4.9/5 Rating" },
       { type: "stat", label: "100K+ Doctors Rated" },
       { type: "stat", label: "500K+ Testimonials Analysed" },
     ],
@@ -30,7 +30,7 @@ const columns = [
     heading: "Contact",
     links: [
       { type: "email", label: "hello@surgery-abroad.com", href: "mailto:hello@surgery-abroad.com" },
-      { type: "address", label: "Manufaktūrų g. 20, Vilnius, Lithuania (EU)" },
+      { type: "address", label: "Manufakturu g. 20, Vilnius, Lithuania (EU)" },
     ],
   },
   
@@ -38,7 +38,7 @@ const columns = [
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-950 text-white py-12">
+    <footer className="bg-slate-950 text-white section-padding-md">
       <div className="max-w-6xl mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-12">
         {columns.map((col) => (
           <div key={col.heading}>

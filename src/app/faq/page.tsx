@@ -67,9 +67,9 @@ export default function FAQPage() {
 	};
 
 	return (
-		<main className="min-h-screen bg-[#233665]/5">
+		<main>
 			{/* Hero Section */}
-			 <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-white">
+			 <section className="section-full section-spacing-xl flex items-center justify-center overflow-hidden bg-white">
       <div className="relative z-10 text-center px-4 md:px-8">
         <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 break-words max-w-full">
 						Frequently Asked Questions
@@ -81,8 +81,7 @@ export default function FAQPage() {
 			</section>
 
 			{/* FAQ Section */}
-			<section className="pt-4 pb-20 px-4 md:px-8 bg-white">
-				<div className="max-w-3xl mx-auto">
+			<section className="section-container section-spacing-md">
 					<div className="space-y-6">
 						{FAQS.map((faq, idx) => (
 							<div
@@ -115,7 +114,6 @@ export default function FAQPage() {
 							</div>
 						))}
 					</div>
-				</div>
 			</section>
 			<CTA />
        		<Footer />

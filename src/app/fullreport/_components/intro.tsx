@@ -20,17 +20,27 @@ const Intro = ({ name, specialty, location, rating }: {
     city && state ? `${city}, ${state}` : city || state || '';
 
     return (
-        <div className="dr_intro">
-            <h1>{name}</h1>
-            <div className="flex justify-between items-center">
-                <p>{specialty}</p>
-                <div className="flex items-center gap-2">
-                    <MapPin size={16} />
-                    <span>{displayLocation}</span>
-                </div>
-            </div>
-        </div>
-    )
+  <div>
+    {/* Always show name */}
+    <h1>{name}</h1>
+
+    {/* Show specialty + location only on md and larger */}
+    <div className="hidden md:flex justify-between items-center">
+      <h3 className="font-normal text-slate-600">{specialty}</h3>
+      <div className="flex items-center gap-2 text-slate-600">
+        <MapPin size={16} />
+        <span>{displayLocation}</span>
+      </div>
+    </div>
+
+    {/* Show only name + location on small screens */}
+    <div className="flex md:hidden items-center gap-2 text-slate-600 mt-2">
+      <MapPin size={16} />
+      <span>{displayLocation}</span>
+    </div>
+  </div>
+);
+
 }
 export default Intro
 

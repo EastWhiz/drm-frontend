@@ -329,10 +329,10 @@ const FAQs = ({ params, report }: FAQsProps) => {
   };
 
   return (
-    <main className="max-w-4xl mx-auto p-6">
-      <h1 className="text-primary text-2xl sm:text-3xl md:text-4xl lg:text-5xl  font-semibold mb-8">
+    <main>
+      <h2 className="reports_heading">
         Ask About {params._nme}
-      </h1>
+      </h2>
 
 
       <div className="flex items-center gap-1 mb-4">

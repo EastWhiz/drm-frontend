@@ -62,7 +62,7 @@ const Header = () => {
 
   return (
     <header className={`header ${isScrolled ? "scrolled" : menuOpen ? "menu-open" : ""}`}>
-      <div className="container mx-auto px-6 md:px-12 relative">
+      <div className="section-container section-spacing-sm">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center logo" onClick={closeMenu} aria-label="Home">

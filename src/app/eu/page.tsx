@@ -3,9 +3,9 @@ import CTA from "@/components/footer/CTA";
 
 export default function EUFundingPage() {
   return (
-    <main className="min-h-screen bg-[#233665]/5">
+    <main className="">
       {/* Hero Section */}
-      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-white">
+      <section className="section-spacing-xl section-full flex items-center justify-center overflow-hidden bg-white">
       <div className="relative z-10 text-center px-4 md:px-8">
         <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 break-words max-w-full">
           EU Funding
@@ -17,7 +17,7 @@ export default function EUFundingPage() {
     </section>
 
       {/* Content Section */}
-      <section className="py-20 px-4 md:px-8 bg-white">
+      <section className="section-spacing-md section-container bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="mb-16">
             <p className="text-lg text-slate-700 mb-6">

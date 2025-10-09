@@ -8,10 +8,10 @@ export default function CTA({
   buttonHref = "/",
 }) {
   return (
-    <section className="py-20 bg-slate-800">
+    <section className="text-white section-padding-lg bg-slate-800">
       <div className="max-w-4xl mx-auto text-center px-4 md:px-8">
         <h2 className="text-4xl font-bold text-white mb-6">{title}</h2>
-        <p className="text-xl text-white/80 mb-8">{description}</p>
+        <p className="text-xl text-white/80 mb-10">{description}</p>
         <Link href={buttonHref} className="inline-block">
           <button
             type="button"

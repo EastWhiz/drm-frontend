@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================
+   CUSTOM UTILITIES
+   ============================ */
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;
@@ -12,8 +15,9 @@
   }
 }
 
-
-
+/* ============================
+   BASE STYLES & TYPOGRAPHY
+   ============================ */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -68,15 +72,78 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-}
 
-
-
-@layer base {
-  * {
-    @apply border-border;
+  html {
+    scroll-behavior: smooth;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
+  h1 {
+    @apply text-h1 text-primary-dark;
+  }
+  h2 {
+    @apply text-h2;
+  }
+  h3 {
+    @apply text-h3;
+  }
+  p {
+    @apply text-body text-slate-700;
+  }
+  small {
+    @apply text-small text-slate-500;
+  }
+
+  /* Responsive adjustment for h1 */
+  @media (min-width: 1024px) {
+    h1 {
+      font-size: 4rem; /* 64px */
+      line-height: 1.2;
+    }
+  }
+}
+
+/* ============================
+   LAYOUT UTILITIES
+   ============================ */
+
+/* Full-width section with responsive side padding */
+.section-full {
+  @apply w-full px-4 sm:px-8 md:px-12;
+}
+
+/* Constrained section (max 1440px wide, centered) */
+.section-container {
+  @apply max-w-[1440px] mx-auto px-4 sm:px-8 md:px-12;
+}
+
+/* Vertical spacing utilities (for consistent top/bottom margins) */
+.section-spacing-sm {
+  @apply my-2 sm:my-3;
+}
+.section-spacing-md {
+  @apply my-12 sm:my-16;
+}
+.section-spacing-lg {
+  @apply my-20 sm:my-24;
+}
+.section-spacing-xl {
+  @apply my-36 sm:my-44;
+}
+
+/* Padding utilities for sections */
+.section-padding-sm {
+  @apply py-6 sm:py-10;
+}
+.section-padding-md {
+  @apply py-12 sm:py-16;
+}
+.section-padding-lg {
+  @apply py-20 sm:py-24;
+}
+.section-padding-xl {
+  @apply py-36 sm:py-44;
 }

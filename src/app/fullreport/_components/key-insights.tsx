@@ -1,45 +1,43 @@
 import React from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/solid";
-import { Circle } from "lucide-react";
-import "./style.css";
 
 interface Insight {
-    title: string;
-    text: string;
+  title: string;
+  text: string;
 }
 
-const KeyInsights = ({ insights }: { insights: Insight[] }) => {
-    return (
-        <main className="px-8 key-insights">
-            <h2 className="reports_heading">Key Insights</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {insights?.map((insight, index) => (
-                    <div key={index} className="border border-[#ADD8FF] rounded-lg p-6">
-                        <div className="flex items-center mb-3 gap-2">
-                            <Circle className="w-4 h-4 flex-shrink-0 fill-black" />
-                            <h3 className="text-lg md:text-xl font-semibold text-[#0F152B]">
-                                {insight.title}
-                            </h3>
-                        </div>
-                        <p className="text-sm md:text-base text-[#333] leading-relaxed">
-                            {insight.text}
-                        </p>
-                    </div>
-                ))}
+interface KeyInsightsProps {
+  insights?: Insight[];
+}
 
-                {(!insights || insights.length === 0) && (
-                    <div className="border border-[#ADD8FF] rounded-lg p-6 col-span-3">
-                        <div className="flex items-center gap-2">
-                            <InformationCircleIcon className="w-6 h-6 text-gray-600" />
-                            <h3 className="text-base md:text-lg font-medium text-gray-700">
-                                No insights available
-                            </h3>
-                        </div>
-                    </div>
-                )}
-            </div>
-        </main>
-    );
-};
+const KeyInsights: React.FC<KeyInsightsProps> = ({ insights = [] }) => (
+  <section className="key-insights">
+    <h2 className="reports_heading mb-8">Key Insights</h2>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {insights.length > 0 ? (
+        insights.map((insight, index) => (
+          <div
+            key={index}
+            className="border border-[#ADD8FF] rounded-lg p-6 bg-white shadow-sm"
+          >
+            <h3 className="text-lg md:text-xl font-semibold text-[#0F152B] mb-2">
+              {insight.title}
+            </h3>
+            <p className="text-sm md:text-base text-[#333] leading-relaxed">
+              {insight.text}
+            </p>
+          </div>
+        ))
+      ) : (
+        <div className="border border-[#ADD8FF] rounded-lg p-6 col-span-3 bg-white flex items-center gap-3">
+          <InformationCircleIcon className="w-6 h-6 text-gray-600" />
+          <span className="text-base md:text-lg font-medium text-gray-700">
+            No insights available
+          </span>
+        </div>
+      )}
+    </div>
+  </section>
+);
 
 export default KeyInsights;

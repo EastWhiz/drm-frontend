@@ -48,7 +48,7 @@ export function PatientReviews({ yearlyData, totalReviews }: PatientReviewsProps
     const hasData = chartData.some(item => item.positive > 0 || item.negative > 0)
 
     return (
-        <main className="px-8">
+        <main>
 
             <div className="flex items-center space-x-4">
                 <h2 className="reports_heading">Patient Reviews Timeline</h2>

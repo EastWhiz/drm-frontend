@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import { Star } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
@@ -30,18 +29,18 @@ const Feedback = ({
   negativeComment,
   rating,
 }: FeedbackProps) => {
-  const processComments = () => {
-    const comments: Comment[] = [];
-    if (positiveComments?.first)
-      comments.push({ ...positiveComments.first, type: "positive" });
-    if (positiveComments?.second)
-      comments.push({ ...positiveComments.second, type: "positive" });
-    if (negativeComment)
-      comments.push({ ...negativeComment, type: "negative" });
-    return comments;
-  };
-
-  const comments = processComments();
+  // Gather comments into a flat array
+  const comments: Comment[] = [
+    ...(positiveComments?.first
+      ? [{ ...positiveComments.first, type: "positive" } as Comment]
+      : []),
+    ...(positiveComments?.second
+      ? [{ ...positiveComments.second, type: "positive" } as Comment]
+      : []),
+    ...(negativeComment
+      ? [{ ...negativeComment, type: "negative" } as Comment]
+      : []),
+  ];
 
   const getAvatarColor = (type: "positive" | "negative") =>
     type === "positive"
@@ -55,15 +54,14 @@ const Feedback = ({
 
   const renderStars = (type: "positive" | "negative") => {
     const stars = type === "positive" ? 5 : 1;
-    return Array(5)
-      .fill(0)
-      .map((_, i) => (
-        <Star
-          key={i}
-          className={`w-4 h-4 ${i < stars ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-            }`}
-        />
-      ));
+    return Array.from({ length: 5 }).map((_, i) => (
+      <Star
+        key={i}
+        className={`w-4 h-4 ${
+          i < stars ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+        }`}
+      />
+    ));
   };
 
   if (comments.length === 0) {
@@ -75,13 +73,12 @@ const Feedback = ({
   }
 
   return (
-    <div className="w-full px-4 py-8">
-      <h2 className="text-xl font-semibold mb-4">Patient Feedback</h2>
+    <div className="w-full">
+      <p className="text-primary font-semibold mb-4">Patient Feedback:</p>
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={20}
         slidesPerView={1}
-        // navigation
         pagination
         autoplay={{ delay: 3500, disableOnInteraction: false }}
         breakpoints={{

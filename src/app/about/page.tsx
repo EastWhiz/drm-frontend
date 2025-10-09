@@ -30,10 +30,10 @@ const STATS = [
 ];
 
 const FeaturesSection = () => (
-  <section className="py-20 bg-[#edf3ff]">
-    <div className="max-w-6xl mx-auto px-4 md:px-8">
+  <section className="section-padding-lg bg-[#edf3ff]">
+    <div className="section-container">
       <h2 className="text-4xl font-bold text-slate-900 text-center mb-16">Why Choose Us</h2>
-      <div className="grid md:grid-cols-3 gap-8 mb-8">
+      <div className="grid md:grid-cols-3 gap-8 mb-12">
         {FEATURES.map(({ title, description, icon: Icon }) => (
           <div
             key={title}
@@ -50,7 +50,7 @@ const FeaturesSection = () => (
 <Link href="/how-it-works" className="flex justify-center" >
   <button
   type="button"
-  className="bg-[#233665] text-white px-8 py-4 rounded-xl text-lg font-semibold
+  className="bg-[#233665] text-white px-8 py-6 rounded-xl text-lg font-semibold
              hover:bg-white hover:text-slate-900 transition-colors
              flex items-center gap-2 mx-auto"
 >
@@ -63,8 +63,8 @@ const FeaturesSection = () => (
 );
 
 const StatsSection = () => (
-  <section className="py-20 bg-white">
-    <div className="max-w-6xl mx-auto px-4 md:px-8">
+  <section className="section-padding-md bg-white">
+    <div className="section-container mx-auto px-4 md:px-8">
       <div className="grid md:grid-cols-3 gap-8">
         {STATS.map(({ number, label }) => (
           <div key={label} className="text-center">
@@ -80,8 +80,8 @@ const StatsSection = () => (
 const AboutPage = () => (
   <main className="min-h-screen bg-[#233665]/5">
     {/* Hero Section */}
-    <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-white">
-      <div className="relative z-10 text-center px-4 md:px-8">
+    <section className="section-padding-xl flex items-center justify-center overflow-hidden bg-white">
+      <div className="section-full relative z-10 text-center">
         <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 break-words max-w-full">
           A Better Way To Know Your Doctor
         </h1>
@@ -92,8 +92,8 @@ const AboutPage = () => (
     </section>
 
     {/* Mission Section */}
-    <section className="pt-8 pb-20 px-4 md:px-8 bg-white">
-      <div className="max-w-6xl mx-auto">
+    <section className="section-padding-lg bg-white">
+      <div className="section-container">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-4xl font-bold text-slate-900 mb-6">Our Mission</h2>

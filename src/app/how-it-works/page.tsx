@@ -49,8 +49,7 @@ const features = [
 ];
 
 const StepsSection = () => (
-  <section className="py-20 px-4 md:px-8">
-    <div className="max-w-6xl mx-auto">
+  <section className="section-container section-spacing-md">
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
         {steps.map(({ number, title, description, icon: Icon }) => (
           <div key={title} className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all">
@@ -65,7 +64,6 @@ const StepsSection = () => (
           </div>
         ))}
       </div>
-    </div>
   </section>
 );
 
@@ -110,7 +108,7 @@ const ProcessVisualization = () => (
 const HowItWorksPage = () => (
   <main className="min-h-screen bg-[#EDF3FF]">
     {/* Hero Section */}
-    <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
+    <section className="section-padding-xl section-full flex items-center justify-center overflow-hidden">
       <div className="relative z-10 text-center px-4">
        <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6">
   How It Works{" "}
