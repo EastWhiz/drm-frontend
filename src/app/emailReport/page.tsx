@@ -1,5 +1,6 @@
 "use client";
-import React, { Suspense, useEffect, useState } from "react";
+
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/ui/loader/loader";
 import {
@@ -9,16 +10,23 @@ import {
   getSlugFromProfileLink,
 } from "@/services/paramsHelper";
 
-const EmailReport = () => {
-  const searchParams = useSearchParams();
+function EmailReportInner() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const doctorName = searchParams.get("_nme") ?? "Doctor";
+
+  // --- loader state ---
+  const [showLoader, setShowLoader] = useState(true);
+  const [backendReady, setBackendReady] = useState(false);
+
+  // --- form state ---
   const [isChecked, setIsChecked] = useState(false);
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false); // NEW
 
-  const doctorName = searchParams.get("_nme");
-  const [params, setParams] = useState<ReturnType<typeof extractParamsFromUrl>>(
-    {
+  // params
+  const [params, setParams] =
+    useState<ReturnType<typeof extractParamsFromUrl>>({
       _spt: "",
       _spt_slug: "",
       _nme: "",
@@ -28,103 +36,125 @@ const EmailReport = () => {
       slug: "",
       _sr: "",
       lang: "en",
-    }
-  );
-
-  const [specialtyData, setSpecialtyData] = useState<any[]>([]);
-  const [report, setReport] = useState<null>(null);
-  const [error, setError] = useState<string | null>(null);
+    });
 
   useEffect(() => {
-    // Extract params once component mounts
     setParams(extractParamsFromUrl());
   }, []);
 
   useEffect(() => {
     const fetchAllData = async () => {
       if (!params._sr || !params.slug) return;
-
-      setIsLoading(true);
-      setError(null);
-
       try {
-        // 1. Fetch specialty data
-        const specialtyResults = await fetchSpecialtyData(
+        let specialtyResults = await fetchSpecialtyData(
           params._spt_slug,
           params._sr
         );
-        setSpecialtyData(specialtyResults);
-
-        // Fallback to different specialty
-        if (specialtyResults.length === 0) {
-          const fallbackSpecialty = await fetchSpecialtyData(
-            "physician",
-            params._sr
-          );
-          setSpecialtyData(fallbackSpecialty);
+        if (!specialtyResults.length) {
+          specialtyResults = await fetchSpecialtyData("physician", params._sr);
         }
 
-        // 2. Handle slug adjustments (specific to iwgc source)
         let identifier = params.slug;
         if (params._sr === "iwgc") {
           const slugFromProfile = getSlugFromProfileLink(params.slug);
           identifier = slugFromProfile || params.slug;
         }
 
-        // 3. Fetch report data
-        const fetchedReport = await fetchReportData(identifier, params._sr);
-
-        // TODO Can be continoued in future, fetchedReport variable is useless for now
-      } catch (error) {
-        console.warn("Error:", error);
-        setError("Failed to fetch data");
-      } finally {
-        setIsLoading(false);
+        await fetchReportData(identifier, params._sr);
+        setBackendReady(true);
+      } catch {
+        setBackendReady(true);
       }
     };
-
     fetchAllData();
   }, [params]);
 
-  if (isLoading) return <Loader />;
-
   const navigateToFullReport = () => {
-    const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.has("slug") && searchParams.has("_sr")) {
-      router.push(`/fullreport?${searchParams.toString()}`);
-    } else {
-      console.warn("No identifier to navigate with");
+    const q = new URLSearchParams(window.location.search);
+    if (q.has("slug") && q.has("_sr")) {
+      router.push(`/fullreport?${q.toString()}`);
     }
   };
 
-  // Check if email is valid and checkbox is checked
-  // Utility email validation function: returns true if valid, false otherwise
-  function isValidEmail(email: string): boolean {
-    // Requires at least 2 characters for the TLD part (after the last dot)
-    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
-  }
+  const isValidEmail = (val: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val.trim());
+  const isFormValid = useMemo(
+    () => isValidEmail(email) && isChecked && !isSubmitting,
+    [email, isChecked, isSubmitting]
+  );
 
-  const isFormValid = isValidEmail(email) && isChecked;
+  const SHEET_URL = process.env.NEXT_PUBLIC_SHEET_WEBAPP_URL || "";
 
-  if (isLoading) {
-    return <Loader />;
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!isFormValid) return;
+    setIsSubmitting(true);
+
+    const payload = {
+      email,
+      consent: isChecked,
+      doctorName,
+      params,
+      extra: {
+        ts: new Date().toISOString(),
+        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+        page: typeof window !== "undefined" ? window.location.href : "",
+      },
+    };
+
+    try {
+      // Fire the request but don’t let it block navigation for long.
+      const postPromise = SHEET_URL
+        ? fetch(SHEET_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+        : Promise.resolve();
+
+      // Wait whichever finishes first: the post OR 800ms.
+      await Promise.race([
+        postPromise,
+        new Promise((res) => setTimeout(res, 800)),
+      ]);
+    } catch (err) {
+      console.warn("Sheet logging failed:", err);
+      // Intentionally ignore; we’ll still navigate.
+    } finally {
+      navigateToFullReport();
+    }
+  };
+
+  if (showLoader) {
+    return (
+      <Loader
+        ready={backendReady}
+        onComplete={() => setShowLoader(false)}
+      />
+    );
   }
 
   return (
-    <section className="flex min-h-screen items-center justify-center bg-sky-100 p-6 sm:p-10 lg:p-20">
+    <section className="flex min-h-screen items-center justify-center bg-[#EDF3FF] p-6 sm:p-10 lg:p-20">
       <div className="w-full max-w-4xl space-y-8 lg:space-y-10">
-        <div className="text-center lg:text-left">
+        <div className="text-left">
           <h1 className="text-4xl font-bold text-black sm:text-5xl md:text-6xl">
-            Success!
+            It’s Ready!
           </h1>
           <p className="mt-3 text-lg text-black sm:mt-4 sm:text-xl md:text-2xl">
-            The report on {doctorName} has been generated.
+            The report on <b>{doctorName}</b> has been successfully generated.
           </p>
         </div>
 
         <div className="space-y-3">
-          {/* Email Form */}
-          <form className="flex w-full flex-col gap-4 rounded-2xl bg-white p-6 shadow-lg sm:flex-row sm:items-stretch sm:gap-4 sm:p-6 md:rounded-3xl">
+          <form
+            className="flex w-full flex-col gap-4 rounded-2xl bg-white p-6 shadow-lg sm:flex-row sm:items-stretch sm:gap-4 sm:p-6 md:rounded-3xl"
+            autoComplete="on"
+            onSubmit={handleSubmit}
+            noValidate
+            aria-busy={isSubmitting}
+          >
             <div className="flex-1">
               <label htmlFor="emailInput" className="sr-only">
                 Email address
@@ -132,52 +162,66 @@ const EmailReport = () => {
               <input
                 type="email"
                 id="emailInput"
-                placeholder="Enter your email to get the report"
+                name="email"
+                placeholder="Enter your email to get the report for free"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-full w-full py-4 text-lg placeholder-gray-400 focus:outline-none sm:py-5 sm:text-xl md:py-6"
+                className="h-full w-full py-4 text-lg placeholder-gray-400 focus:outline-none sm:py-5 sm:text-xl md:py-6 disabled:opacity-60"
                 aria-label="Enter your email address to receive the report"
-                autoComplete="off"
+                autoComplete="email"
+                autoCapitalize="off"
+                autoCorrect="off"
+                inputMode="email"
+                required
+                disabled={isSubmitting}
               />
             </div>
 
             <button
-              type="button"
-              onClick={() => navigateToFullReport()}
+              type="submit"
               disabled={!isFormValid}
-              className={`w-full rounded-xl bg-slate-900 px-6 py-4 text-lg font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-600 focus:ring-offset-2 sm:w-auto sm:px-8 sm:py-5 md:py-6 md:text-xl ${!isFormValid
-                ? "opacity-50 cursor-not-allowed hover:bg-slate-900"
-                : ""
-                }`}
+              className={`w-full rounded-xl bg-slate-900 px-6 py-4 text-lg font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-600 focus:ring-offset-2 sm:w-auto sm:px-8 sm:py-5 md:py-6 md:text-xl disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              Get Report
+              {isSubmitting ? (
+                <span className="inline-flex items-center gap-2">
+                  <span
+                    className="inline-block h-5 w-5 rounded-full border-2 border-white/50 border-t-white animate-spin"
+                    aria-hidden="true"
+                  />
+                  Sending…
+                </span>
+              ) : (
+                "Get Report"
+              )}
             </button>
           </form>
 
-          {/* GDPR checkbox placed right below the form */}
           <div className="flex items-center gap-3 text-base text-black px-2">
             <input
               type="checkbox"
               id="gdprConsent"
+              name="gdprConsent"
               className="w-5 h-5 accent-slate-900 flex-shrink-0"
               checked={isChecked}
               onChange={() => setIsChecked(!isChecked)}
+              required
+              aria-required="true"
+              disabled={isSubmitting}
             />
             <label htmlFor="gdprConsent" className="leading-snug flex-1">
-              I agree that my email will be stored and used to contact and
-              provide me with the doctor report.
+              <span className="text-red-500 font-bold" aria-hidden="true">
+                *
+              </span>{" "}
+              <b>(Required)</b> I agree that my email will be stored and used to
+              contact and provide me with the doctor report.
             </label>
           </div>
         </div>
       </div>
     </section>
   );
-};
+}
 
-const EmailReportWithSuspense = () => (
-  <Suspense fallback={<div>Loading...</div>}>
-    <EmailReport />
-  </Suspense>
-);
-
-export default EmailReportWithSuspense;
+export default function EmailReportPage() {
+  return <EmailReportInner />;
+}

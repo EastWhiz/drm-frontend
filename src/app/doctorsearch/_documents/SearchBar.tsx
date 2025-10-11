@@ -44,8 +44,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
           : ""
         }`}
     />
-    <div className="mt-2 text-xs text-gray-500">
-      Tip: Only search by <span className="font-medium">Name & Surname</span>{" "}
+    <div className="mt-3 text-xs text-gray-500">
+      <span className="font-medium">Tip:</span> Only search by <span className="font-medium">Name & Surname</span>{" "}
       (without Dr / Dr. and so on)
     </div>
   </div>

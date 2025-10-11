@@ -10,6 +10,7 @@ import DoctorCard from "./_documents/DoctorCard";
 import SearchBar from "./_documents/SearchBar";
 import LocationFilter from "./_documents/LocationFilter";
 import Loader from "@/components/ui/loader/loader";
+import Spinner from "@/components/ui/loader/spinner";
 
 const DoctorSearch = () => {
   const [searchText, setSearchText] = useState("");
@@ -315,10 +316,10 @@ const DoctorSearch = () => {
         {/* Doctor Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-[1440px] mx-auto">
           {isLoading && (
-            <div className="col-span-full flex justify-center items-center">
-              <Loader />
-            </div>
-          )}
+  <div className="col-span-full flex justify-center items-center py-8">
+    <Spinner />
+  </div>
+)}
 
           {error && (
             <div className="col-span-full text-center py-4 text-red-500 text-lg">

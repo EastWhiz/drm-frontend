@@ -28,14 +28,14 @@ const Footer: React.FC<FooterProps> = ({ onDownload, isGeneratingPDF }) => {
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-20">
         <Link
           href={"/?e_ser=t"}
-          className="px-6 py-4 min-w-[220px] text-lg font-semibold rounded-lg shadow-md bg-white text-[#0F152B] hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out text-center"
+          className="px-6 py-4 min-w-[220px] text-lg font-semibold rounded-lg shadow-md bg-white text-[#0F152B] btn-hover text-center"
         >
           Scan Another Doctor
         </Link>
 
         <button
           onClick={onDownload}
-          className="px-6 py-4 min-w-[220px] text-lg font-semibold flex items-center justify-center gap-2 text-white border border-gray-300 bg-white/10 rounded-lg backdrop-blur-sm hover:bg-white/20 hover:border-white transition-all duration-300 text-center"
+          className="btn-hover px-6 py-4 min-w-[220px] text-lg font-semibold flex items-center justify-center gap-2 text-white border border-gray-300 bg-white/10 rounded-lg backdrop-blur-sm hover:bg-white/20 hover:border-white transition-all duration-300 text-center"
         >
           <Download size={22} />
           <span>{isGeneratingPDF ? "Generating..." : "Download Report"}</span>

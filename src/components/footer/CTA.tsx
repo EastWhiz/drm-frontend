@@ -15,7 +15,7 @@ export default function CTA({
         <Link href={buttonHref} className="inline-block">
           <button
             type="button"
-            className="bg-white text-slate-900 px-8 py-4 rounded-xl text-lg font-semibold
+            className="btn-hover bg-white text-slate-900 px-8 py-4 rounded-xl text-lg font-semibold
               hover:bg-[#233665] hover:text-white transition-colors
               flex items-center gap-2 mx-auto"
           >

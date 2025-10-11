@@ -147,3 +147,8 @@
 .section-padding-xl {
   @apply py-36 sm:py-44;
 }
+
+/* ---------- Reusable hover animation ---------- */
+.btn-hover {
+  @apply transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105;
+}

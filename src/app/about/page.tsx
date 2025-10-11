@@ -50,7 +50,7 @@ const FeaturesSection = () => (
 <Link href="/how-it-works" className="flex justify-center" >
   <button
   type="button"
-  className="bg-[#233665] text-white px-8 py-6 rounded-xl text-lg font-semibold
+  className="btn-hover bg-[#233665] text-white px-8 py-6 rounded-xl text-lg font-semibold
              hover:bg-white hover:text-slate-900 transition-colors
              flex items-center gap-2 mx-auto"
 >

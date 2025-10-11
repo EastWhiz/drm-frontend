@@ -13,7 +13,7 @@ import { Doctor, Report } from "@/types";
 import PrintableReport from "./_components/printable-report";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import Loader from "@/components/ui/loader/loader";
+import Spinner from "@/components/ui/loader/spinner";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -272,13 +272,14 @@ const FullReport = () => {
     }
   };
 
+{/* Loader on Start */}
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen w-full">
-        <Loader />
+        <Spinner />
       </div>
     );
-  }
+  } 
 
   return (
     <main className="relative">
