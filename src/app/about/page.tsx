@@ -125,4 +125,10 @@ const AboutPage = () => (
   </main>
 );
 
+export const metadata = {
+  title: "About Doc Report - Trusted Doctor Reviews",
+  description:
+    "We are a team of healthcare and tech enthusiasts on a mission to make healthcare more transparent and accessible for everyone.",
+};
+
 export default AboutPage;

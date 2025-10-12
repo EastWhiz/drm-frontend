@@ -4,20 +4,20 @@ import Footer from "@/components/footer/Footer";
 
 export default function TermsOfServicePage() {
   return (
-    <main className="min-h-screen bg-[#233665]/5">
-      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-white">
-      <div className="relative z-10 text-center px-4 md:px-8">
-        <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 break-words max-w-full">
+    <main className="min-h-screen">
+      <section className="section-padding-xl flex items-center justify-center overflow-hidden bg-[#233665]/5">
+      <div className="relative z-10 text-center section-container">
+        <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 break-words">
             Terms of Service
           </h1>
-          <p className="text-xl md:text-2xl text-slate-600 mb-8">
+          <p className="text-xl md:text-2xl text-slate-600">
             Please read these terms of service carefully before using our platform.
           </p>
         </div>
       </section>
 
-      <section className="pt-4 pb-20 px-4 md:px-8 bg-white">
-        <div className="max-w-3xl mx-auto space-y-8 text-slate-700 text-lg">
+      <section className="section-padding-md bg-white">
+        <div className="section-container space-y-8 text-slate-700 text-lg">
           <div>
             <h2 className="text-2xl font-bold text-[#233665] mb-4">1. Acceptance of Terms</h2>
             <p>

@@ -39,7 +39,7 @@ const columns = [
 export default function Footer() {
   return (
     <footer className="bg-slate-950 text-white section-padding-md">
-      <div className="max-w-6xl mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-12">
+      <div className="section-container grid grid-cols-1 md:grid-cols-4 gap-12">
         {columns.map((col) => (
           <div key={col.heading}>
             <h3 className="text-lg font-bold mb-4">{col.heading}</h3>

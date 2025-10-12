@@ -126,4 +126,10 @@ const HowItWorksPage = () => (
   </main>
 );
 
+export const metadata = {
+  title: "How to Use Doc Report – Generate a Doctor Report in Seconds",
+  description:
+    "Step-by-step guide to finding a doctor, scanning their online presence, and downloading a clear, trusted report. Tips, examples, and common pitfalls.",
+};
+
 export default HowItWorksPage;

@@ -9,6 +9,7 @@ import {
   fetchSpecialtyData,
   getSlugFromProfileLink,
 } from "@/services/paramsHelper";
+import { trackEvent } from "@/lib/analytics";
 
 export default function EmailReportClient() {
   const router = useRouter();
@@ -73,12 +74,26 @@ export default function EmailReportClient() {
   const isFormValid = useMemo(() => isValidEmail(email) && isChecked, [email, isChecked]);
 
   const SHEET_URL = process.env.NEXT_PUBLIC_SHEET_WEBAPP_URL || "";
-  const [submitting, setSubmitting] = useState(false);
+const [submitting, setSubmitting] = useState(false);
+const [honeypot, setHoneypot] = useState(""); // must stay empty
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isFormValid || submitting) return;
     setSubmitting(true);
+
+    // Track the click/submit (NO PII!)
+  trackEvent({
+    action: "email_submit",
+    category: "lead",
+    label: params._sr, // data source (iwgc, etc.)
+    params: {
+      speciality: params._spt,
+      city: params._ct,
+      state: params._st,
+      consent: isChecked ? "yes" : "no",
+    },
+  });
 
     const payload = {
       email,
@@ -90,23 +105,38 @@ export default function EmailReportClient() {
         userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
         page: typeof window !== "undefined" ? window.location.href : "",
       },
+      honeypot, // add honeypot to both calls if you want
     };
 
     try {
-      if (SHEET_URL) {
-        await fetch(SHEET_URL, {
+    // fire both: sheet + email (don’t await both fully)
+    const tasks: Promise<any>[] = [];
+
+    if (SHEET_URL) {
+      tasks.push(
+        fetch(SHEET_URL, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        });
-      }
-    } catch (err) {
-      console.warn("Sheet logging failed:", err);
-    } finally {
-      navigateToFullReport();
+        }).catch(() => {})
+      );
     }
-  };
+
+    tasks.push(
+      fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).catch(() => {})
+    );
+
+    // Give them up to ~800ms, then move on regardless
+    await Promise.race([Promise.allSettled(tasks), new Promise(res => setTimeout(res, 800))]);
+  } finally {
+    navigateToFullReport();
+  }
+};
 
   if (showLoader) {
     return <Loader ready={backendReady} onComplete={() => setShowLoader(false)} />;
@@ -147,7 +177,18 @@ export default function EmailReportClient() {
                 required
               />
             </div>
-
+{/* Honeypot (bots often fill every input) */}
+<input
+  type="text"
+  name="company"
+  autoComplete="off"
+  tabIndex={-1}
+  value={honeypot}
+  onChange={(e) => setHoneypot(e.target.value)}
+  className="hidden"
+  aria-hidden="true"
+/>
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={!isFormValid || submitting}
@@ -173,7 +214,9 @@ export default function EmailReportClient() {
             <label htmlFor="gdprConsent" className="leading-snug flex-1">
               <span className="text-red-500 font-bold" aria-hidden="true">*</span>{" "}
               <b>(Required)</b> I agree that my email will be stored and used to contact and
-              provide me with the doctor report.
+              provide me with the doctor report. <a href="/privacy" target="_blank" className="text-xs">
+  <span className="underline">Privacy Policy</span> ›
+</a> 
             </label>
           </div>
         </div>

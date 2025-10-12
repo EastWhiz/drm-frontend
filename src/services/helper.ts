@@ -1,31 +1,46 @@
-export const paymentPageUrlRenderer = (doctor: any, apiSources:string, router:any) => {
-    // localStorage.setItem('doctor', JSON.stringify(doctor));
-    let path = '/emailReport?';
-    const queryParams = {
-        'slug' : encodeURIComponent(doctor?.slug || doctor?.id || ''),
-        '_spt' : doctor?.specialty || 'chiropractor',
-        '_spt_slug' : doctor?.specialty_url || doctor?.specialty || 'chiropractor',
-        '_nme' : doctor?.name || 'Dr.',
-        '_ct' : doctor?.city || '',
-        '_st': doctor?.state || '',
-        '_rt' : doctor?.rating || 0,
-        '_sr' : apiSources
-    }
+import { trackDoctorClick } from "@/lib/analytics";
 
-    if(apiSources == 'iwgc'){
-        queryParams.slug = encodeURIComponent(getSlugFromProfileLink(doctor.profileLink));
-    }
+export const paymentPageUrlRenderer = (
+  doctor: any,
+  apiSources: string,
+  router: any
+) => {
+  let path = "/emailReport?";
+  const queryParams = {
+    slug: encodeURIComponent(doctor?.slug || doctor?.id || ""),
+    _spt: doctor?.specialty || "chiropractor",
+    _spt_slug:
+      doctor?.specialty_url || doctor?.specialty || "chiropractor",
+    _nme: doctor?.name || "Dr.",
+    _ct: doctor?.city || "",
+    _st: doctor?.state || "",
+    _rt: doctor?.rating || 0,
+    _sr: apiSources,
+  };
 
-    Object.keys(queryParams).forEach(key => {
-        path += `${key}=${queryParams[key]}&`;
-    })
+  // Normalize IWGC profile link
+  if (apiSources === "iwgc" && doctor?.profileLink) {
+    queryParams.slug = encodeURIComponent(
+      getSlugFromProfileLink(doctor.profileLink) || ""
+    );
+  }
 
-    console.log('path', path);
-    router.push(path);
+  // Build the query string
+  const queryString = Object.entries(queryParams)
+    .map(([key, val]) => `${key}=${val}`)
+    .join("&");
 
+  const pathWithParams = `${path}${queryString}`;
+
+  // ✅ Fire analytics event before navigation
+  trackDoctorClick(doctor, apiSources);
+
+  console.log("Navigating to:", pathWithParams);
+  router.push(pathWithParams);
 };
 
+// helper for IWGC links
 const getSlugFromProfileLink = (profileLink: string): string | null => {
-    const match = profileLink.match(/\/doctors\/([^/]+)/);
-    return match ? match[1] : null;
+  const match = profileLink.match(/\/doctors\/([^/]+)/);
+  return match ? match[1] : null;
 };

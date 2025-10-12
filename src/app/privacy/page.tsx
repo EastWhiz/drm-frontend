@@ -4,20 +4,23 @@ import Footer from "@/components/footer/Footer";
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="min-h-screen bg-[#233665]/5">
-      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-white">
-      <div className="relative z-10 text-center px-4 md:px-8">
-        <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 break-words max-w-full">
+    <main className="min-h-screen">
+      <section className="bg-[#233665]/5 section-padding-xl flex items-center justify-center overflow-hidden">
+      <div className="section-container relative z-10 text-center">
+        <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 break-words">
             Privacy Policy
           </h1>
-          <p className="max-w-3xl text-xl md:text-2xl text-slate-600 mb-8">
+          <p className="text-xl md:text-2xl text-slate-600">
             Your privacy is important to us. This policy explains how we collect, use, and protect your information.
           </p>
         </div>
       </section>
 
-      <section className="pt-4 pb-20 px-4 md:px-8 bg-white">
-        <div className="max-w-3xl mx-auto space-y-8 text-slate-700 text-lg">
+      <section className="section-container bg-white">
+        <div className="section-padding-md space-y-8 text-slate-700 text-sm">
+          <a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>
+  Go Back <span aria-hidden="true">›</span>
+</a>
           <div>
             <h2 className="text-2xl font-bold text-[#233665] mb-4">Information We Collect</h2>
             <p>

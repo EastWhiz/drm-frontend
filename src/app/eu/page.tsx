@@ -1,6 +1,12 @@
 import Footer from "@/components/footer/Footer";
 import CTA from "@/components/footer/CTA";
 
+export const metadata = {
+  title: "EU Funding & Support – Doc Report",
+  description:
+    "Learn how Doc Report is supported by EU grants, the programme details, and our commitment to transparency, compliance, and public impact.",
+};
+
 export default function EUFundingPage() {
   return (
     <main className="">
