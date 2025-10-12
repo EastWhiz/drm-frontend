@@ -1,0 +1,50 @@
+// app/unsubscribe/unsubscribe-client.tsx
+"use client";
+
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+
+const SHEET_URL = process.env.NEXT_PUBLIC_SHEET_WEBAPP_URL || "";
+
+export default function UnsubscribeClient() {
+  const sp = useSearchParams();
+  const email = (sp.get("email") || "").trim();
+
+  useEffect(() => {
+    if (!email || !SHEET_URL) return;
+
+    const payload = {
+      action: "unsubscribe",
+      email,
+      ts: new Date().toISOString(),
+    };
+
+    // Fire-and-forget; don't block UI.
+    fetch(SHEET_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  }, [email]);
+
+  return (
+    <main className="min-h-[60vh] flex items-center justify-center bg-[#F9FAFB] p-8">
+      <div className="max-w-xl text-center">
+        <h1 className="text-3xl font-bold text-slate-900">You’ve been unsubscribed</h1>
+        <p className="mt-3 text-slate-700">
+          {email
+            ? `${email} will no longer receive doctor report emails.`
+            : "You will no longer receive doctor report emails."}
+        </p>
+        <p className="mt-6 text-sm text-slate-500">
+          If this was a mistake, you can subscribe again on{" "}
+          <a className="underline" href="https://doc-report.com">
+            doc-report.com
+          </a>
+          .
+        </p>
+      </div>
+    </main>
+  );
+}
