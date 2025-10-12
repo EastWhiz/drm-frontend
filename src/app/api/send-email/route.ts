@@ -73,7 +73,7 @@ export async function POST(req: Request) {
           Sent: ${sentUtc}
         </p>
         <p style="margin:0;font-size:12px;color:#475569;">
-          Unsubscribe: <a href="href="https://doc-report.com/unsubscribe?email=${encodeURIComponent(email)}" style="color:#0f172a;">one-click</a> or email <a href="${unsubscribeMailto}" style="color:#0f172a;">unsubscribe</a>.
+          Unsubscribe: <a href="https://doc-report.com/unsubscribe?email=${encodeURIComponent(email)}" style="color:#0f172a;">one-click</a> or email <a href="${unsubscribeMailto}" style="color:#0f172a;">unsubscribe</a>.
         </p>
       </div>
     `;
