@@ -133,7 +133,7 @@ const FullReport = () => {
   };
 
   // Handle exit popup logic
-  useEffect(() => {
+  {/* useEffect(() => {
     const handleMouseLeave = (e: MouseEvent) => {
       if (suppressExitRef.current) return;
       if (e.clientY < 50) {
@@ -170,7 +170,7 @@ const FullReport = () => {
       window.removeEventListener("popstate", handleRouteChange);
       window.removeEventListener("hashchange", () => {});
     };
-  }, [showExitPopup]);
+  }, [showExitPopup]); */}
 
   // PDF generation
   const handleDownload = async () => {
@@ -283,7 +283,7 @@ const FullReport = () => {
 
   return (
     <main className="relative">
-      {/* Exit Popup */}
+      {/* Exit Popup 
       {showExitPopup && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div>
@@ -310,7 +310,7 @@ const FullReport = () => {
             </div>
           </div>
         </div>
-      )}
+      )}*/}
 
       {/* Main Content */}
       <div

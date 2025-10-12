@@ -95,7 +95,7 @@ export default function Spinner({
       className="inline-flex flex-col items-center justify-center"
     >
       <div
-        className={`rounded-full border-8 border-slate-200 border-t-[#9fd6fb] ${spinClass} ${className}`}
+        className={`rounded-full border-8 mt-10 border-slate-200 border-t-[#9fd6fb] ${spinClass} ${className}`}
         style={{ width: size, height: size }}
       />
       {showTitle && (
