@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useEffect, useState } from "react";
 import { Doctor, Report } from "@/types";
 // import Loading from "../loading/page";
@@ -17,7 +17,7 @@ import Image from "next/image";
 import { LanguageSwitcher } from "@/components/languageSwitcher/language-switcher";
 import {useRouter, useSearchParams} from "next/navigation";
 import {paymentPageUrlRenderer} from "@/services/helper";
-import Loader from "@/components/ui/loader/loader";
+import Spinner from "@/components/ui/loader/spinner";
 
 const DoctorProfile = () => {
   const [report, setReport] = useState<Report | null>(null);
@@ -75,6 +75,8 @@ const DoctorProfile = () => {
   }, []);
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+if (!API_BASE_URL) console.warn("Missing NEXT_PUBLIC_API_URL");
+
 
   // useEffect(() => {
   //   if (typeof window !== 'undefined') {
@@ -90,19 +92,13 @@ const DoctorProfile = () => {
   //   }
   // }, []);
 
-  const fetchSpecialtyData = async (specialty: string) => {
-    const response = await fetch(
-      `${API_BASE_URL}/doctors/speciality/?source=${params?._sr}&speciality=${specialty}`
-    );
-    // if (!response.ok) {
-    //   // throw new Error('Specialty fetch failed');
-    //   setSpecialtyData([]);
-    //   return [];
-    // }
-    const data = await response.json();
-    setSpecialtyData(data?.results || []);
-    return data?.results || [];
-  }
+const fetchSpecialtyData = async (specialty: string) => {
+  const res = await fetch(`${API_BASE_URL}/doctors/speciality/?source=${params._sr}&speciality=${specialty}`);
+  const data = await res.json();
+  setSpecialtyData(data?.results ?? []);
+  return data?.results ?? [];
+};
+
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -151,7 +147,7 @@ const DoctorProfile = () => {
   }, [params?._sr, params?.slug]);
 
   if (isLoading) {
-    return <Loader />;
+    return <Spinner />;
   }
   if (error) {
     return <div>Error: {error}</div>;
@@ -306,30 +302,30 @@ const DoctorProfile = () => {
         </div>
         <div className="mt-6 max-md:mr-2.5 max-md:max-w-full">
           <div className="flex gap-5 max-md:flex-col">
-            {report && report.insights && report.insights.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
-                {report.insights.map((insight, index) => (
-                  <div key={index} className="flex flex-col text-slate-900 h-full">
-                    <div className="flex gap-4 items-start p-5 bg-white rounded-xl shadow-[0px_4px_17px_rgba(0,0,0,0.08)] border border-gray-200 transition-all duration-300 hover:shadow-lg hover:border-orange-100 h-full">
-                      <div className="flex-shrink-0 mt-0.5">
-                        {getInsightIcon(insight)}
-                      </div>
-                      <p className="text-lg font-medium">
-                        {insight}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col w-full text-slate-900">
-                <div className="flex gap-4 items-center p-5 bg-white rounded-xl shadow-[0px_4px_17px_rgba(0,0,0,0.08)] border border-gray-200">
-                  <p className="text-lg font-medium">
-                    No insights available
-                  </p>
-                </div>
-              </div>
-            )}
+            {report?.insights?.length ? (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
+    {report.insights.map((insight: any, index: number) => {
+      const text = typeof insight === "string" ? insight : insight?.text ?? "";
+      return (
+        <div key={index} className="flex flex-col text-slate-900 h-full">
+          <div className="flex gap-4 items-start p-5 bg-white rounded-xl shadow-[0px_4px_17px_rgba(0,0,0,0.08)] border border-gray-200 transition-all duration-300 hover:shadow-lg hover:border-orange-100 h-full">
+            <div className="flex-shrink-0 mt-0.5">
+              {getInsightIcon(text)}
+            </div>
+            <p className="text-lg font-medium">{text}</p>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+) : (
+  <div className="flex flex-col w-full text-slate-900">
+    <div className="flex gap-4 items-center p-5 bg-white rounded-xl shadow-[0px_4px_17px_rgba(0,0,0,0.08)] border border-gray-200">
+      <p className="text-lg font-medium">No insights available</p>
+    </div>
+  </div>
+)}
+
           </div>
         </div>
 

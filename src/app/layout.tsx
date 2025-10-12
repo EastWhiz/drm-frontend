@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
 import { Jost } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header/Header";
 import { WishlistProvider } from "@/context/WishlistContext";
 import Analytics from "@/components/analytics/Analytics";
 import RouteAnalytics from "@/components/analytics/RouteAnalytics";
+import { Suspense } from "react";
 
 const jost = Jost({
   subsets: ["latin"],
@@ -59,7 +59,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Header />
           {children}
           <Analytics />
+         <Suspense fallback={null}>
           <RouteAnalytics />
+        </Suspense>
         </WishlistProvider>
       </body>
     </html>

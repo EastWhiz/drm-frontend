@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { Doctor } from "@/types";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
