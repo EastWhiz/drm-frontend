@@ -56,7 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${jost.variable} font-sans antialiased`}>
         <WishlistProvider>
-          <Header />
+           <Suspense fallback={null}><Header /></Suspense>
           {children}
           <Analytics />
          <Suspense fallback={null}>
