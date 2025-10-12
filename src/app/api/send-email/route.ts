@@ -73,23 +73,24 @@ export async function POST(req: Request) {
           Sent: ${sentUtc}
         </p>
         <p style="margin:0;font-size:12px;color:#475569;">
-          Unsubscribe: <a href="${unsubscribeHttp}" style="color:#0f172a;">one-click</a> or email <a href="${unsubscribeMailto}" style="color:#0f172a;">unsubscribe</a>.
+          Unsubscribe: <a href="href="https://doc-report.com/unsubscribe?email=${encodeURIComponent(email)}" style="color:#0f172a;">one-click</a> or email <a href="${unsubscribeMailto}" style="color:#0f172a;">unsubscribe</a>.
         </p>
       </div>
     `;
 
-    const text = [
-      `Your doctor report is ready`,
-      ``,
-      `Doctor: ${doctorName || "Doctor"}`,
-      ``,
-      `View your report:`,
-      `${reportUrl}`,
-      ``,
-      `You’re receiving this because you requested a doctor report on our website.`,
-      `Sent: ${sentUtc}`,
-      `Unsubscribe: ${unsubscribeHttp} or email unsubscribe at ${process.env.SMTP_USER}`,
-    ].join("\n");
+   const text = [
+  `Your doctor report is ready.`,
+  ``,
+  `Doctor: ${doctorName || "Doctor"}`,
+  ``,
+  `View your report: ${reportUrl}`,
+  ``,
+  `You’re receiving this because you requested a doctor report on our website.`,
+  `Sent: ${sentUtc}`,
+  ``,
+  `To unsubscribe, visit: https://doc-report.com/unsubscribe?email=${encodeURIComponent(email)}`,
+  `or email "unsubscribe" to ${process.env.SMTP_USER}`,
+].join("\n");
 
     await transporter.sendMail({
       from: process.env.SMTP_FROM || `Doc Report <${process.env.SMTP_USER}>`,
@@ -98,12 +99,10 @@ export async function POST(req: Request) {
       html,
       text, // plain-text part improves deliverability
       headers: {
-        // Better unsubscribe signals (Gmail/Outlook)
-        "List-Unsubscribe": `<${unsubscribeMailto}>, <${unsubscribeHttp}>`,
-        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-        // Hint it’s automated
-        "Auto-Submitted": "auto-generated",
-      },
+  // One-click unsubscribe: many providers auto-honor these
+  "List-Unsubscribe": `<https://doc-report.com/unsubscribe?email=${encodeURIComponent(email)}>, <mailto:${process.env.SMTP_USER}?subject=unsubscribe>`,
+  "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+},
     });
 
     return NextResponse.json({ ok: true });
