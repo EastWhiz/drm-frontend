@@ -4,19 +4,18 @@ import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
-    const { email, doctorName, params, extra, honeypot } = await req.json();
+    const { email, doctorName, params, honeypot } = await req.json();
 
-    // Simple bot check (honeypot input must be empty)
+    // Honeypot: silently accept but do nothing if filled
     if (honeypot && String(honeypot).trim() !== "") {
-      return NextResponse.json({ ok: true }); // silently ignore
+      return NextResponse.json({ ok: true });
     }
 
-    // Basic validation
     if (!email || typeof email !== "string") {
       return NextResponse.json({ ok: false, error: "invalid_email" }, { status: 400 });
     }
 
-    // Build report URL from params
+    // Build the report URL
     const qs = new URLSearchParams({
       slug: params?.slug ?? "",
       _sr: params?._sr ?? "",
@@ -27,10 +26,14 @@ export async function POST(req: Request) {
       _rt: String(params?._rt ?? 0),
     }).toString();
 
-    const base = process.env.APP_BASE_URL || "https://doc-report.com";
+    const base = (process.env.APP_BASE_URL || "https://doc-report.com").replace(/\/$/, "");
     const reportUrl = `${base}/fullreport?${qs}`;
 
-    // Nodemailer (Google Workspace SMTP)
+    // Unsubscribe endpoints (mailto + optional one-click URL)
+    const unsubscribeMailto = `mailto:${process.env.SMTP_USER}?subject=unsubscribe`;
+    const unsubscribeHttp = `${base}/api/unsubscribe?email=${encodeURIComponent(email)}`;
+
+    // SMTP (Google Workspace)
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST!,
       port: Number(process.env.SMTP_PORT || 587),
@@ -41,28 +44,65 @@ export async function POST(req: Request) {
       },
     });
 
+    const preheader = `Your report on ${doctorName || "the doctor"} is ready.`;
+    const sentUtc = new Date().toUTCString();
+
     const html = `
-      <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:640px;margin:auto;padding:24px;color:#0f172a">
+      <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:640px;margin:auto;padding:24px;color:#0f172a;line-height:1.5;">
+        <!-- Preheader (hidden in most clients) -->
+        <span style="display:none!important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;">${preheader}</span>
+
         <h2 style="margin:0 0 12px 0;">Your doctor report is ready</h2>
-        <p style="margin:0 0 12px 0;">Doctor: <strong>${doctorName || "Doctor"}</strong></p>
-        <p style="margin:0 0 20px 0;">
+        <p style="margin:0 0 8px 0;">Doctor: <strong>${doctorName || "Doctor"}</strong></p>
+
+        <p style="margin:12px 0 18px 0;">
           View your report:<br/>
           <a href="${reportUrl}" style="color:#0f172a;text-decoration:underline;">${reportUrl}</a>
         </p>
-        <a href="${reportUrl}" style="display:inline-block;background:#0f152b;color:#fff;padding:12px 18px;border-radius:10px;text-decoration:none;">Open report</a>
-        <p style="margin-top:28px;font-size:12px;color:#475569;">
-          Sent ${new Date().toLocaleString()} • If you didn’t request this, you can ignore this email.
+
+        <p style="margin:0 0 24px 0;">
+          <a href="${reportUrl}" style="display:inline-block;background:#0f152b;color:#fff;padding:12px 18px;border-radius:10px;text-decoration:none;">Open report</a>
+        </p>
+
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0;" />
+
+        <p style="margin:0 0 8px 0;font-size:12px;color:#475569;">
+          You’re receiving this because you requested a doctor report on our website.
+        </p>
+        <p style="margin:0 0 8px 0;font-size:12px;color:#475569;">
+          Sent: ${sentUtc}
+        </p>
+        <p style="margin:0;font-size:12px;color:#475569;">
+          Unsubscribe: <a href="${unsubscribeHttp}" style="color:#0f172a;">one-click</a> or email <a href="${unsubscribeMailto}" style="color:#0f172a;">unsubscribe</a>.
         </p>
       </div>
     `;
 
+    const text = [
+      `Your doctor report is ready`,
+      ``,
+      `Doctor: ${doctorName || "Doctor"}`,
+      ``,
+      `View your report:`,
+      `${reportUrl}`,
+      ``,
+      `You’re receiving this because you requested a doctor report on our website.`,
+      `Sent: ${sentUtc}`,
+      `Unsubscribe: ${unsubscribeHttp} or email unsubscribe at ${process.env.SMTP_USER}`,
+    ].join("\n");
+
     await transporter.sendMail({
       from: process.env.SMTP_FROM || `Doc Report <${process.env.SMTP_USER}>`,
       to: email,
-      subject: `Your report: ${doctorName || "Doctor"}`,
+      subject: `Your report is ready: ${doctorName || "Doctor"}`,
       html,
+      text, // plain-text part improves deliverability
       headers: {
-        "List-Unsubscribe": `<mailto:${process.env.SMTP_USER}?subject=unsubscribe>`,
+        // Better unsubscribe signals (Gmail/Outlook)
+        "List-Unsubscribe": `<${unsubscribeMailto}>, <${unsubscribeHttp}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        // Hint it’s automated
+        "Auto-Submitted": "auto-generated",
       },
     });
 
