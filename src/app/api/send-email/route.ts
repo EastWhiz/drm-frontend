@@ -2,17 +2,59 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
+const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET || "";
+const RECAPTCHA_THRESHOLD = Number(process.env.RECAPTCHA_THRESHOLD ?? 0.5);
+
+async function verifyRecaptcha(token: string, actionExpected?: string) {
+  if (!token || !RECAPTCHA_SECRET) return { ok: false, reason: "missing_token_or_secret" };
+
+  const params = new URLSearchParams();
+  params.append("secret", RECAPTCHA_SECRET);
+  params.append("response", token);
+
+  const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+    method: "POST",
+    body: params,
+  });
+
+  const data = await res.json();
+  // data shape: { success, score, action, challenge_ts, hostname, ... }
+
+  if (!data.success) return { ok: false, reason: "verification_failed", data };
+  if (actionExpected && data.action !== actionExpected) {
+    return { ok: false, reason: "action_mismatch", data };
+  }
+  if (typeof data.score === "number" && data.score < RECAPTCHA_THRESHOLD) {
+    return { ok: false, reason: "low_score", score: data.score, data };
+  }
+  return { ok: true, data };
+}
+
 export async function POST(req: Request) {
   try {
-    const { email, doctorName, params, honeypot } = await req.json();
+    const { email, doctorName, params, extra, honeypot, recaptchaToken } = await req.json();
 
-    // Honeypot: silently accept but do nothing if filled
-    if (honeypot && String(honeypot).trim() !== "") {
+    // honeypot spam filter
+    if (honeypot && `${honeypot}`.trim() !== "") {
       return NextResponse.json({ ok: true });
     }
 
+    // Basic email validation
     if (!email || typeof email !== "string") {
       return NextResponse.json({ ok: false, error: "invalid_email" }, { status: 400 });
+    }
+
+    // Verify recaptcha if token present
+    if (recaptchaToken) {
+      const v = await verifyRecaptcha(recaptchaToken, "email_submit");
+      if (!v.ok) {
+        console.warn("reCAPTCHA failed:", v);
+        // You can reject or continue depending on policy — typically reject:
+        return NextResponse.json({ ok: false, error: "recaptcha_failed", reason: v.reason }, { status: 403 });
+      }
+    } else {
+      // Optionally reject if no token (safer) or allow (fallback)
+      // return NextResponse.json({ ok: false, error: "missing_recaptcha" }, { status: 403 });
     }
 
     // Build the report URL

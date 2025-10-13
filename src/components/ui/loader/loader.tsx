@@ -247,8 +247,8 @@ function Spinner({ suppressed }: { suppressed: boolean }) {
   const spinClass = suppressed ? "" : "animate-spin";
   return (
     <div
-      className={`rounded-full border-8 border-slate-200 border-t-[#9fd6fb] ${spinClass}`}
-      style={{ width: 96, height: 96 }}
+      className={`rounded-full border-8 border-slate-200 border-t-[#9fd6fb] ${spinClass}
+                  w-24 h-24 sm:w-12 sm:h-12`}
     />
   );
 }

@@ -77,12 +77,26 @@ export default function EmailReportClient() {
 const [submitting, setSubmitting] = useState(false);
 const [honeypot, setHoneypot] = useState(""); // must stay empty
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!isFormValid || submitting) return;
-    setSubmitting(true);
+const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
-    // Track the click/submit (NO PII!)
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  if (!isFormValid || submitting) return;
+  setSubmitting(true);
+
+  // 1) Fetch a reCAPTCHA v3 token (non-blocking fallback if script isn’t present)
+  let recaptchaToken = "";
+  try {
+    const g = (typeof window !== "undefined" ? (window as any).grecaptcha : null);
+    if (SITE_KEY && g) {
+      await g.ready();
+      recaptchaToken = await g.execute(SITE_KEY, { action: "email_submit" });
+    }
+  } catch {
+    // ignore; we’ll still proceed
+  }
+
+  // 2) Track the click/submit (NO PII!)
   trackEvent({
     action: "email_submit",
     category: "lead",
@@ -95,21 +109,23 @@ const [honeypot, setHoneypot] = useState(""); // must stay empty
     },
   });
 
-    const payload = {
-      email,
-      consent: isChecked,
-      doctorName,
-      params,
-      extra: {
-        ts: new Date().toISOString(),
-        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
-        page: typeof window !== "undefined" ? window.location.href : "",
-      },
-      honeypot, // add honeypot to both calls if you want
-    };
+  // 3) Build payload (include reCAPTCHA + honeypot if you have it)
+  const payload = {
+    email,
+    consent: isChecked,
+    doctorName,
+    params,
+    extra: {
+      ts: new Date().toISOString(),
+      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+      page: typeof window !== "undefined" ? window.location.href : "",
+    },
+    honeypot,          // keep if you already collect this in a hidden field
+    recaptchaToken,    // <-- NEW
+  };
 
-    try {
-    // fire both: sheet + email (don’t await both fully)
+  try {
+    // Fire both: sheet + email (don’t await both fully)
     const tasks: Promise<any>[] = [];
 
     if (SHEET_URL) {
@@ -132,7 +148,10 @@ const [honeypot, setHoneypot] = useState(""); // must stay empty
     );
 
     // Give them up to ~800ms, then move on regardless
-    await Promise.race([Promise.allSettled(tasks), new Promise(res => setTimeout(res, 800))]);
+    await Promise.race([
+      Promise.allSettled(tasks),
+      new Promise((res) => setTimeout(res, 800)),
+    ]);
   } finally {
     navigateToFullReport();
   }

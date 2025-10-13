@@ -5,6 +5,8 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import Analytics from "@/components/analytics/Analytics";
 import RouteAnalytics from "@/components/analytics/RouteAnalytics";
 import { Suspense } from "react";
+import Script from "next/script";
+// import CookieBanner from "@/components/CookieBanner";
 
 const jost = Jost({
   subsets: ["latin"],
@@ -54,6 +56,13 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+        <head>
+        {/* Load reCAPTCHA v3 once globally */}
+        <Script
+          src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
+          strategy="beforeInteractive"
+        />
+      </head>
       <body className={`${jost.variable} font-sans antialiased`}>
         <WishlistProvider>
            <Suspense fallback={null}><Header /></Suspense>
@@ -63,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <RouteAnalytics />
         </Suspense>
         </WishlistProvider>
+        {/* <CookieBanner /> */}
       </body>
     </html>
   );
