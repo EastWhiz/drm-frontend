@@ -183,10 +183,10 @@ const FullReport = () => {
     }
   };
 
-  const handleContinue = () => {
+  {/* const handleContinue = () => {
     setShowExitPopup(false);
     setMouseLeaving(false);
-  };
+  }; */}
 
   const generatePDF = async () => {
     try {
@@ -313,11 +313,11 @@ const FullReport = () => {
       )}*/}
 
       {/* Main Content */}
-      <div
+     {/* <div
         className={`transition-opacity duration-300 ${
           showExitPopup ? "opacity-30" : "opacity-100"
         }`}
-      >
+      ></div>*/}
         <div className="bg-[#E5EEFB] pt-40 pb-12">
           <div className="section-container">
             <Intro
@@ -328,16 +328,16 @@ const FullReport = () => {
             />
           </div>
         </div>
-        <div className="section-container section-spacing-lg">
+        <div className="section-container section-spacing-lg bg-white">
           <KeyInsights insights={report?.insights || []} />
         </div>
-        <div className="section-container section-spacing-lg">
+        <div className="section-container section-spacing-lg bg-white">
           <PatientReviews
             yearlyData={report?.yearlyData}
             totalReviews={report?.totalReviews}
           />
         </div>
-        <div className="section-container section-spacing-lg">
+        <div className="section-container section-spacing-lg bg-white">
           <Feedback
             positiveComments={report?.positiveComments}
             negativeComment={report?.negativeComment}
@@ -349,7 +349,7 @@ const FullReport = () => {
           doctorName={params._nme}
           rating={params._rt}
         />
-        <div id="faq" className="section-container section-spacing-lg">
+        <div id="faq" className="section-container section-spacing-lg bg-white">
           <FAQs
             params={params}
             report={report || { insights: [], summary: "", totalReviews: 0 }}
@@ -357,7 +357,7 @@ const FullReport = () => {
         </div>
         <Footer onDownload={handleDownload} isGeneratingPDF={isGeneratingPDF} />
         <Footer1 />
-      </div>
+      
     </main>
   );
 };
